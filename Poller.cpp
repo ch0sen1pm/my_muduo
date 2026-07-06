@@ -16,7 +16,7 @@ Poller::~Poller() {
     ::close(epollfd_);
 }
 
-void Poller::poll(int timeoutMs, std::vector<Channel*> activeChannels) {
+void Poller::poll(int timeoutMs, std::vector<Channel*>& activeChannels) {
     int numEvents = ::epoll_wait(epollfd_,
                                 events_.data(),
                                 events_.size(),
@@ -35,7 +35,7 @@ void Poller::fillActiveChannels_(int numEvents, std::vector<Channel*>& activeCha
     for (int i = 0; i < numEvents; i ++) {
         int fd = events_[i].data.fd;
         auto it = channels_.find(fd);
-        if (it != channels_,end()) {
+        if (it != channels_.end()) {
             Channel* channel = it->second;
             channel->set_revents(events_[i].events);
             activeChannels.push_back(channel);
@@ -69,7 +69,7 @@ void Poller::update_(int op, Channel* channel) {
 
     if (channel->events() & 1) {
         ev.events |= EPOLLIN;
-    };
+    }
 
     if (channel->events() & 2) {
         ev.events |= EPOLLOUT;

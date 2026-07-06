@@ -2,8 +2,8 @@
 #include <vector>
 #include <map>
 
-Class Channel;
-Class EventLoop;
+class Channel;
+class EventLoop;
 struct epoll_event;
 
 class Poller {
@@ -13,8 +13,8 @@ public:
 
     void poll(int timeoutMs, std::vector<Channel*>& activeChannels);
 
-    void updateChannel(Channel* Channel);
-    void removeChannel(Channel* Channel);
+    void updateChannel(Channel* channel);
+    void removeChannel(Channel* channel);
 private:
     void fillActiveChannels_(int numEvents, std::vector<Channel*>& activeChannels);
 
