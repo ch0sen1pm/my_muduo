@@ -11,7 +11,7 @@ public:
     ~Channel();
 
     void setReadCallback(EventCallback cb) { readCallback_ = std::move(cb); }
-    void setWriteCallback(EventCallback cb) { wirteCallback_ = std::move(cb); }
+    void setWriteCallback(EventCallback cb) { writeCallback_ = std::move(cb); }
 
     void enableReading();
     void enableWriting();
@@ -37,5 +37,5 @@ private:
     static const int kWriteEvent = 2;
 
     EventCallback readCallback_;
-    EventCallback wirteCallback_;
+    EventCallback writeCallback_;
 };

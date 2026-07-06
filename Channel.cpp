@@ -1,4 +1,5 @@
 #include "Channel.h"
+#include "EventLoop.h"
 
 Channel::Channel(EventLoop* loop, int fd)
     : loop_(loop)
@@ -28,7 +29,7 @@ void Channel::disableAll() {
 }
 
 void Channel::update() {
-    // loop_->updateChannel(this);
+    loop_->updateChannel(this);
 }
 
 void Channel::handleEvent() {
@@ -36,7 +37,7 @@ void Channel::handleEvent() {
         readCallback_();
     }
 
-    if ((revents_ & kWriteEvent) && wirteCallback_) {
-        wirteCallback_();
+    if ((revents_ & kWriteEvent) && writeCallback_) {
+        writeCallback_();
     }
 }
