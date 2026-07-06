@@ -16,10 +16,8 @@ public:
     EventLoop();
     ~EventLoop();
 
-    // 启动循环，一般不退出
     void loop();
 
-    // Channel::update() 最终调到这里 → 转给 Poller
     void updateChannel(Channel* channel);
     void removeChannel(Channel* channel);
 
