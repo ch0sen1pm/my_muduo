@@ -42,3 +42,38 @@ void Poller::fillActiveChannels_(int numEvents, std::vector<Channel*>& activeCha
         }
     }
 }
+
+void Poller::updateChannel(Channel* channel) {
+    int fd = channel->fd();
+
+    if (channels_.find(fd) == channels_.end()) {
+        channels_[fd] = channel;
+        update_(EPOLL_CTL_ADD, channel);
+    } else if (channel->events() == 0) {
+        update_(EPOLL_CTL_DEL, channel);
+    } else {
+        update_(EPOLL_CTL_MOD, channel);
+    }
+}
+
+void Poller::removeChannel(Channel* channel) {
+    int fd = channel->fd();
+    channels_.erase(fd);
+    update_(EPOLL_CTL_DEL, channel);
+}
+
+void Poller::update_(int op, Channel* channel) {
+    struct epoll_event ev;
+    ev.events = 0;
+    ev.data.fd = channel->fd();
+
+    if (channel->events() & 1) {
+        ev.events |= EPOLLIN;
+    };
+
+    if (channel->events() & 2) {
+        ev.events |= EPOLLOUT;
+    }
+
+    ::epoll_ctl(epollfd_, op, channel->fd(), &ev);
+}
