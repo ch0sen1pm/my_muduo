@@ -12,6 +12,8 @@ A lightweight C++ Reactor network library inspired by muduo. Built from scratch 
 - **Channel** — fd + 事件 + 回调的抽象，不拥有 fd
 - **Poller** — epoll 的 C++ 薄封装，不暴露系统调用
 - **EventLoop** — 事件循环，Poll → Dispatch → Poll → Dispatch...
+- **Socket** — RAII fd 管理，只移不拷，封装 socket/bind/listen
+- **Acceptor** — 监听 socket + Channel 封装，新连接回调通知
 - **One loop per thread** — 每个 EventLoop 独占一个 Poller 实例
 
 ## Quick Start
@@ -62,6 +64,8 @@ EventLoop::loop()
 | `Channel` | 一个 fd + 回调，不拥有 fd | "这个 socket 可读了就叫 A 函数" |
 | `Poller` | epoll 封装（create/ctl/wait） | "别直接碰 epoll，通过我来" |
 | `EventLoop` | while(true) { poll → dispatch } | "整个程序的发动机" |
+| `Socket` | RAII 管理 fd 生命周期 | "这房子我租的，走的时候我关" |
+| `Acceptor` | 监听 socket + 新连接回调 | "门童——站门口，来人就通报" |
 
 ### Key Design
 
@@ -85,8 +89,8 @@ make -j$(nproc)
 - [x] Channel（fd 抽象 + 回调绑定）
 - [x] Poller（epoll 封装）
 - [x] EventLoop（事件循环，stdin demo 跑通）
-- [ ] Socket 封装（RAII fd 管理）
-- [ ] Acceptor（监听 socket + accept）
+- [x] Socket 封装（RAII fd 管理，只移不拷）
+- [x] Acceptor（监听 socket + accept 回调）
 - [ ] TcpConnection（客户端连接读写）
 - [ ] Buffer（输入输出缓冲区）
 - [ ] TimerQueue（定时器）
