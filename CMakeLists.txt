@@ -9,4 +9,5 @@ add_executable(muduo_demo
     Channel.cpp
     Poller.cpp
     EventLoop.cpp
+    Socket.cpp
 )
