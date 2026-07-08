@@ -14,35 +14,49 @@ A lightweight C++ Reactor network library inspired by muduo. Built from scratch 
 - **EventLoop** — 事件循环，Poll → Dispatch → Poll → Dispatch...
 - **Socket** — RAII fd 管理，只移不拷，封装 socket/bind/listen
 - **Acceptor** — 监听 socket + Channel 封装，新连接回调通知
+- **TcpConnection** — 管理客户端连接，read/write + echo
 - **One loop per thread** — 每个 EventLoop 独占一个 Poller 实例
 
 ## Quick Start
 
+### Echo Server
+
 ```cpp
 #include "EventLoop.h"
-#include "Channel.h"
+#include "Acceptor.h"
+#include "TcpConnection.h"
 #include <iostream>
-#include <unistd.h>
+#include <arpa/inet.h>
 
 int main() {
     EventLoop loop;
 
-    // fd=0 是 stdin（标准输入）
-    Channel stdinChan(&loop, 0);
+    sockaddr_in addr;
+    memset(&addr, 0, sizeof(addr));
+    addr.sin_family = AF_INET;
+    addr.sin_addr.s_addr = INADDR_ANY;
+    addr.sin_port = htons(8080);
 
-    // 设回调：stdin 可读时调用
-    stdinChan.setReadCallback([&]() {
-        char buf[256];
-        ssize_t n = ::read(0, buf, sizeof(buf) - 1);
-        if (n > 0) {
-            buf[n] = '\0';
-            std::cout << "读到: " << buf;
-        }
+    Acceptor acceptor(&loop, addr);
+    acceptor.setNewConnectionCallback([&](int connfd, const sockaddr_in& peer) {
+        auto* conn = new TcpConnection(&loop, connfd);
+        conn->setMessageCallback([conn](const char* data, size_t len) {
+            std::string msg(data, len);
+            std::cout << "收到: " << msg << std::endl;
+            conn->send("服务器收到: " + msg);
+        });
+        conn->connectEstablished();
     });
+    acceptor.listen();
 
-    stdinChan.enableReading();
-    loop.loop();  // 死循环，等待事件
+    std::cout << "监听 8080..." << std::endl;
+    loop.loop();
 }
+```
+
+```bash
+nc localhost 8080
+# 敲 hello → 服务器收到: hello
 ```
 
 ## Architecture
@@ -66,6 +80,7 @@ EventLoop::loop()
 | `EventLoop` | while(true) { poll → dispatch } | "整个程序的发动机" |
 | `Socket` | RAII 管理 fd 生命周期 | "这房子我租的，走的时候我关" |
 | `Acceptor` | 监听 socket + 新连接回调 | "门童——站门口，来人就通报" |
+| `TcpConnection` | 连接 fd 读写 + 回调通知 | "服务员——接了客人，读单上菜" |
 
 ### Key Design
 
@@ -91,7 +106,7 @@ make -j$(nproc)
 - [x] EventLoop（事件循环，stdin demo 跑通）
 - [x] Socket 封装（RAII fd 管理，只移不拷）
 - [x] Acceptor（监听 socket + accept 回调）
-- [ ] TcpConnection（客户端连接读写）
+- [x] TcpConnection（客户端连接读写，echo server 跑通）
 - [ ] Buffer（输入输出缓冲区）
 - [ ] TimerQueue（定时器）
 
