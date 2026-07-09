@@ -23,14 +23,16 @@ void TcpConnection::setMessageCallback(MessageCallback cb) {
 }
 
 void TcpConnection::handleRead() {
-    char buf[4096];
-    ssize_t n = ::read(channel_.fd(), buf, sizeof(buf));
+    ssize_t n = inputBuffer_.readFd(channel_.fd());
 
     if (n > 0) {
-        inputBuffer_.append(buf, n);
-        if (messageCallback_) {
-            messageCallback_(inputBuffer_.data(), inputBuffer_.size());
-            inputBuffer_.clear();
+        while (const char* crlf = inputBuffer_.findCRLF()) {
+            size_t lineLen = crlf - inputBuffer_.peek();
+            std::string msg = inputBuffer_.retrieveAsString(lineLen);
+            inputBuffer_.retrieve(2);
+            if (messageCallback_) {
+                messageCallback_(msg.data(), msg.size());
+            }
         }
     } else if (n == 0) {
         std::cout << "[TcpConnection] 客户端断开" << std::endl;

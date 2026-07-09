@@ -2,7 +2,7 @@
 #include "Socket.h"
 #include "Channel.h"
 #include <functional>
-#include <string>
+#include "Buffer.h"
 
 class EventLoop;
 
@@ -27,5 +27,5 @@ private:
     Channel channel_;
     MessageCallback messageCallback_;
 
-    std::string inputBuffer_;
+    Buffer inputBuffer_;
 };

@@ -12,4 +12,5 @@ add_executable(muduo_demo
     Socket.cpp
     Acceptor.cpp
     TcpConnection.cpp
+    Buffer.cpp
 )
