@@ -15,6 +15,7 @@ A lightweight C++ Reactor network library inspired by muduo. Built from scratch 
 - **Socket** — RAII fd 管理，只移不拷，封装 socket/bind/listen
 - **Acceptor** — 监听 socket + Channel 封装，新连接回调通知
 - **TcpConnection** — 管理客户端连接，read/write + echo
+- **Buffer** — 输入缓冲区，readv 高性能读取 + findCRLF 按行切消息
 - **One loop per thread** — 每个 EventLoop 独占一个 Poller 实例
 
 ## Quick Start
@@ -81,12 +82,14 @@ EventLoop::loop()
 | `Socket` | RAII 管理 fd 生命周期 | "这房子我租的，走的时候我关" |
 | `Acceptor` | 监听 socket + 新连接回调 | "门童——站门口，来人就通报" |
 | `TcpConnection` | 连接 fd 读写 + 回调通知 | "服务员——接了客人，读单上菜" |
+| `Buffer` | 输入缓冲 + 按行切消息 | "托盘——攒够了才端上去" |
 
 ### Key Design
 
 **Channel 不拥有 fd**：fd 由外层 Socket 类管理生命周期，Channel 只是一个"视图"——关注点分离。<br>
 **Poller 通过 map 找回 Channel**：epoll 返回的是 fd，Poller 维护 `map<fd, Channel*>` 做映射——epoll 只管通知谁有事件，不管谁处理。<br>
-**update() 层层委托**：`Channel::update()` → `EventLoop::updateChannel()` → `Poller::updateChannel()` → `epoll_ctl()`——每层只做一件事。
+**update() 层层委托**：`Channel::update()` → `EventLoop::updateChannel()` → `Poller::updateChannel()` → `epoll_ctl()`——每层只做一件事。<br>
+**Buffer 双索引不搬数据**：`readerIndex_` / `writerIndex_` 双指针标记可读区间，retrieve 只移 reader 不删数据；readv + extrabuf 栈空间一次清空内核缓冲区。
 
 ## Build
 
@@ -107,7 +110,7 @@ make -j$(nproc)
 - [x] Socket 封装（RAII fd 管理，只移不拷）
 - [x] Acceptor（监听 socket + accept 回调）
 - [x] TcpConnection（客户端连接读写，echo server 跑通）
-- [ ] Buffer（输入输出缓冲区）
+- [x] Buffer（输入缓冲区，readv + findCRLF 粘包处理）
 - [ ] TimerQueue（定时器）
 
 ## License
