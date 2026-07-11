@@ -16,6 +16,7 @@ A lightweight C++ Reactor network library inspired by muduo. Built from scratch 
 - **Acceptor** — 监听 socket + Channel 封装，新连接回调通知
 - **TcpConnection** — 管理客户端连接，read/write + echo
 - **Buffer** — 输入缓冲区，readv 高性能读取 + findCRLF 按行切消息
+- **TcpServer** — 顶层封装，组合 Acceptor + TcpConnection，10 行启动 echo server
 - **One loop per thread** — 每个 EventLoop 独占一个 Poller 实例
 
 ## Quick Start
@@ -83,6 +84,7 @@ EventLoop::loop()
 | `Acceptor` | 监听 socket + 新连接回调 | "门童——站门口，来人就通报" |
 | `TcpConnection` | 连接 fd 读写 + 回调通知 | "服务员——接了客人，读单上菜" |
 | `Buffer` | 输入缓冲 + 按行切消息 | "托盘——攒够了才端上去" |
+| `TcpServer` | 组合 Acceptor + TcpConnection | "餐厅——门童接人，服务员服务" |
 
 ### Key Design
 
@@ -111,6 +113,9 @@ make -j$(nproc)
 - [x] Acceptor（监听 socket + accept 回调）
 - [x] TcpConnection（客户端连接读写，echo server 跑通）
 - [x] Buffer（输入缓冲区，readv + findCRLF 粘包处理）
+- [x] TcpServer（组合 Acceptor + TcpConnection，单线程 Reactor 闭环）
+- [ ] EventLoopThread（多线程，one loop per thread）
+- [ ] EventLoopThreadPool（线程池 + 轮转调度）
 - [ ] TimerQueue（定时器）
 
 ## License
