@@ -5,10 +5,11 @@
 #include "Acceptor.h"
 
 class EventLoop;
+class TcpConnection;
 
 class TcpServer {
 public:
-    using MessageCallback = std::function<void(const char* data, size_t len)>;
+    using MessageCallback = std::function<void(TcpConnection* conn, const char* data, size_t len)>;
 
     TcpServer(EventLoop* loop, uint16_t port);
     ~TcpServer();

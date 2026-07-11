@@ -42,7 +42,9 @@ void TcpServer::onNewConnection(int connfd, const sockaddr_in& peer) {
               << " port=" << ntohs(peer.sin_port) << std::endl;
 
     auto* conn = new TcpConnection(loop_, connfd);
-    conn->setMessageCallback(messageCallback_);
+    conn->setMessageCallback([this, conn](const char* data, size_t len) {
+        messageCallback_(conn, data, len);
+    });
     conn->connectEstablished();
 }
 
