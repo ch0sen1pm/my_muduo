@@ -29,7 +29,7 @@ int main() {
       conn->setMessageCallback([conn](const char* data, size_t len) {
          std::string msg(data, len);
          std::cout << "收到：" << msg << std::endl;
-         conn->send("服务器收到：" + msg);
+         conn->send("服务器收到：" + msg + "\r\n");
       });
 
       conn->connectEstablished();
