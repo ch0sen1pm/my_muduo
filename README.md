@@ -17,6 +17,8 @@ A lightweight C++ Reactor network library inspired by muduo. Built from scratch 
 - **TcpConnection** — 管理客户端连接，read/write + echo
 - **Buffer** — 输入缓冲区，readv 高性能读取 + findCRLF 按行切消息
 - **TcpServer** — 顶层封装，组合 Acceptor + TcpConnection，10 行启动 echo server
+- **EventLoopThread / Pool** — 多线程支持，one loop per thread，轮转负载均衡
+- **TimerQueue** — timerfd 定时器，与 socket fd 统一在 epoll 中管理
 - **One loop per thread** — 每个 EventLoop 独占一个 Poller 实例
 
 ## Quick Start
@@ -85,6 +87,8 @@ EventLoop::loop()
 | `TcpConnection` | 连接 fd 读写 + 回调通知 | "服务员——接了客人，读单上菜" |
 | `Buffer` | 输入缓冲 + 按行切消息 | "托盘——攒够了才端上去" |
 | `TcpServer` | 组合 Acceptor + TcpConnection | "餐厅——门童接人，服务员服务" |
+| `EventLoopThread` | 一个线程跑一个 EventLoop | "新开一家分店" |
+| `TimerQueue` | timerfd 定时器，epoll 统一管理 | "闹钟——到点提醒" |
 
 ### Key Design
 
