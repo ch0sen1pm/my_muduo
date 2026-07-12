@@ -14,4 +14,6 @@ add_executable(muduo_demo
     TcpConnection.cpp
     Buffer.cpp
     TcpServer.cpp
+    EventLoopThread.cpp
+    EventLoopThreadPool.cpp
 )

@@ -25,11 +25,6 @@ TcpServer::TcpServer(EventLoop* loop, uint16_t port)
 
 TcpServer::~TcpServer() = default;
 
-void TcpServer::start() {
-    std::cout << "[TcpServer] 监听 " << port_ << " 端口..." << std::endl;
-    acceptor_.listen();
-}
-
 void TcpServer::setMessageCallback(MessageCallback cb) {
     messageCallback_ = std::move(cb);
 }
@@ -41,10 +36,22 @@ void TcpServer::onNewConnection(int connfd, const sockaddr_in& peer) {
               << " ip=" << ip
               << " port=" << ntohs(peer.sin_port) << std::endl;
 
-    auto* conn = new TcpConnection(loop_, connfd);
+    EventLoop* ioLoop = threadPool_ ? threadPool_->getNextLoop() : loop_;
+    auto* conn = new TcpConnection(ioLoop, connfd);
     conn->setMessageCallback([this, conn](const char* data, size_t len) {
         messageCallback_(conn, data, len);
     });
     conn->connectEstablished();
 }
 
+void TcpServer::setThreadNum(int numThreads) {
+    threadPool_ = std::make_unique<EventLoopThreadPool>(loop_, numThreads);
+}
+
+void TcpServer::start() {
+    if (threadPool_) {
+        threadPool_->start();
+    }
+    std::cout << "[TcpServer] 监听 " << port_ << "端口..." << std::endl;
+    acceptor_.listen();
+}

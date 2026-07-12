@@ -3,6 +3,7 @@
 #include <string>
 #include <netinet/in.h>
 #include "Acceptor.h"
+#include "EventLoopThreadPool.h"
 
 class EventLoop;
 class TcpConnection;
@@ -17,6 +18,7 @@ public:
     static sockaddr_in makeAddr_(uint16_t port);
     void setMessageCallback(MessageCallback cb);
     void start();
+    void setThreadNum(int numThreads);
 
 private:
     void onNewConnection(int connfd, const sockaddr_in& peer);
@@ -25,4 +27,5 @@ private:
     Acceptor acceptor_;
     MessageCallback messageCallback_;
     uint16_t port_;
+    std::unique_ptr<EventLoopThreadPool> threadPool_;
 };

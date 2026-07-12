@@ -6,6 +6,7 @@
 int main() {
     EventLoop loop;
     TcpServer server(&loop, 8080);
+    server.setThreadNum(4);   // 4 个工作线程
 
     server.setMessageCallback([](TcpConnection* conn, const char* data, size_t len) {
         std::string msg(data, len);
