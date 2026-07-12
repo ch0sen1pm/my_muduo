@@ -9,6 +9,10 @@ Buffer::Buffer()
     , writerIndex_(0)
 {}
 
+// readv: 一次系统调用读到多块内存
+// vec[0] → buffer 空闲区，vec[1] → 栈上 64KB 溢出区
+// 先填 buffer，满了溢出到 extrabuf，再 append 回来
+// 好处：一次 readv 清空内核缓冲区，不用等下一次 epoll
 ssize_t Buffer::readFd(int fd) {
     char extrabuf[65536];
     struct iovec vec[2];
@@ -32,6 +36,11 @@ ssize_t Buffer::readFd(int fd) {
     return n;
 }
 
+// 双索引设计（核心！）：reader 和 writer 都是整数索引
+//   [ 已读过的 | 还没读的 | 空闲空间 ]
+//   ↑           ↑           ↑
+//   0      readerIndex_  writerIndex_
+// retrieve 只移 reader 不删数据，O(1) 无需搬内存
 const char* Buffer::peek() const {
     return begin() + readerIndex_;
 }
@@ -63,6 +72,8 @@ std::string Buffer::retrieveAllAsString() {
     return retrieveAsString(readableBytes());
 }
 
+// 在可读数据中找 \r\n，用于按行切消息（Telnet/HTTP 协议）
+// 返回 nullptr = 还没攒够一行，继续等
 const char* Buffer::findCRLF() const {
     const char* crlf = std::search(
         peek(),

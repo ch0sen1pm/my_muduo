@@ -3,6 +3,8 @@
 #include <sys/epoll.h>
 #include <unistd.h>
 
+// epoll_create1: 创建 epoll 实例，返回一个 fd
+// EPOLL_CLOEXEC: exec 时自动关闭，防 fd 泄漏
 Poller::Poller(EventLoop* loop)
     : loop_(loop)
     , epollfd_(epoll_create1(EPOLL_CLOEXEC)) {
@@ -25,6 +27,7 @@ void Poller::poll(int timeoutMs, std::vector<Channel*>& activeChannels) {
     if (numEvents > 0) {
         fillActiveChannels_(numEvents, activeChannels);
 
+        // events_ 满了 → 扩容翻倍，下次能装更多
         if (static_cast<size_t>(numEvents) == events_.size()) {
             events_.resize(events_.size() * 2);
         }
@@ -46,6 +49,7 @@ void Poller::fillActiveChannels_(int numEvents, std::vector<Channel*>& activeCha
 void Poller::updateChannel(Channel* channel) {
     int fd = channel->fd();
 
+    // ADD/MOD/DEL 三种操作：第一次加、events=0 删除、否则修改
     if (channels_.find(fd) == channels_.end()) {
         channels_[fd] = channel;
         update_(EPOLL_CTL_ADD, channel);

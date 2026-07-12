@@ -16,6 +16,8 @@ EventLoop* EventLoopThread::startLoop() {
 
     {
         std::unique_lock<std::mutex> lock(mutex_);
+        // 等子线程里 EventLoop 创建好 → loop_ 不为空才返回
+        // 不加 wait 可能拿到 nullptr → 调用者崩溃
         cond_.wait(lock, [this]() { return loop_ != nullptr; });
     }
 

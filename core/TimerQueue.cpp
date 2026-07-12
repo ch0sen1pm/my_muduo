@@ -8,6 +8,9 @@
 
 namespace {
 
+// timerfd: Linux 的定时器 fd，跟 socket 一样是 int
+// CLOCK_MONOTONIC: 单调时钟，不受系统时间改动影响
+// TFD_NONBLOCK: 非阻塞（epoll 必须）
 int createTimerfd() {
     int fd = ::timerfd_create(CLOCK_MONOTONIC, TFD_NONBLOCK | TFD_CLOEXEC);
 
@@ -63,6 +66,7 @@ void TimerQueue::addTimer(const TimerCallback& cb, int64_t whenMs) {
     }
 }
 
+// 必须 read！内核在 fd 里写了超时次数，不读走 fd 一直可读 → epoll 死循环
 void TimerQueue::handleRead() {
     uint64_t expired;
     ::read(timerfd_, &expired, sizeof(expired));
