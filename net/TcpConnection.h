@@ -1,6 +1,6 @@
 #pragma once
 #include "Socket.h"
-#include "Channel.h"
+#include "../core/Channel.h"
 #include <functional>
 #include "Buffer.h"
 

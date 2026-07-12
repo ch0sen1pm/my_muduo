@@ -1,7 +1,7 @@
-#include "EventLoop.h"
-#include "TcpServer.h"
-#include "TcpConnection.h"
-#include "TimerQueue.h"
+#include "core/EventLoop.h"
+#include "net/TcpServer.h"
+#include "net/TcpConnection.h"
+#include "core/TimerQueue.h"
 #include <iostream>
 
 int main() {

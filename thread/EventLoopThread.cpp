@@ -1,4 +1,4 @@
-#include "EventLoop.h"
+#include "../core/EventLoop.h"
 #include "EventLoopThread.h"
 
 EventLoopThread::EventLoopThread()

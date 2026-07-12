@@ -114,9 +114,9 @@ make -j$(nproc)
 - [x] TcpConnection（客户端连接读写，echo server 跑通）
 - [x] Buffer（输入缓冲区，readv + findCRLF 粘包处理）
 - [x] TcpServer（组合 Acceptor + TcpConnection，单线程 Reactor 闭环）
-- [ ] EventLoopThread（多线程，one loop per thread）
-- [ ] EventLoopThreadPool（线程池 + 轮转调度）
-- [ ] TimerQueue（定时器）
+- [x] EventLoopThread（一个线程跑一个 EventLoop）
+- [x] EventLoopThreadPool（线程池 + 轮转调度，多线程 Reactor）
+- [x] TimerQueue（timerfd 定时器，epoll 统一管理）
 
 ## License
 

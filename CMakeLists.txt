@@ -4,17 +4,19 @@ project(my_muduo VERSION 1.0 LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
+include_directories(${CMAKE_SOURCE_DIR})
+
 add_executable(muduo_demo
     main.cpp
-    Channel.cpp
-    Poller.cpp
-    EventLoop.cpp
-    Socket.cpp
-    Acceptor.cpp
-    TcpConnection.cpp
-    Buffer.cpp
-    TcpServer.cpp
-    EventLoopThread.cpp
-    EventLoopThreadPool.cpp
-    TimerQueue.cpp
+    core/Channel.cpp
+    core/Poller.cpp
+    core/EventLoop.cpp
+    core/TimerQueue.cpp
+    net/Socket.cpp
+    net/Acceptor.cpp
+    net/TcpConnection.cpp
+    net/Buffer.cpp
+    net/TcpServer.cpp
+    thread/EventLoopThread.cpp
+    thread/EventLoopThreadPool.cpp
 )
