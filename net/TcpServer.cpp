@@ -42,6 +42,10 @@ void TcpServer::onNewConnection(int connfd, const sockaddr_in& peer) {
         messageCallback_(conn, data, len);
     });
     conn->connectEstablished();
+
+    if (connectionCallback_) {
+        connectionCallback_(conn);
+    }
 }
 
 void TcpServer::setThreadNum(int numThreads) {
@@ -54,4 +58,8 @@ void TcpServer::start() {
     }
     std::cout << "[TcpServer] 监听 " << port_ << "端口..." << std::endl;
     acceptor_.listen();
+}
+
+void TcpServer::setConnectionCallback(ConnectionCallback cb) {
+    connectionCallback_ = std::move(cb);
 }

@@ -1,0 +1,42 @@
+#include "net/TcpServer.h"
+#include "net/TcpConnection.h"
+#include "core/EventLoop.h"
+#include "logger.h"
+#include <vector>
+#include <iostream>
+
+int main() {
+    auto console = std::make_shared<stdout_sink>();
+    auto file = std::make_shared<file_sink>("chat.log");
+
+    auto log = std::make_shared<logger>("chat", console);
+    log->add_sink(file);
+    log->set_pattern("[%H:%M:%S] %v");
+    log->set_level(level::info);
+    
+    EventLoop loop;
+    TcpServer server(&loop, 8080);
+    server.setThreadNum(4);
+    std::vector<TcpConnection*> clients;
+
+    server.setConnectionCallback([&](TcpConnection* conn) {
+        clients.push_back(conn);
+        LOG_INFO(log, "新客户端链接，在线：" + std::to_string(clients.size()));
+        conn->send("欢迎！在线人数：" + std::to_string(clients.size()) + "\r\n");
+    });
+
+    server.setMessageCallback([&](TcpConnection* conn, const char* data, size_t len) {
+        std::string msg(data, len);
+        LOG_INFO(log, "收到：" + msg);
+
+        for (auto* c : clients) {
+            if (c != conn) {
+                c->send(msg + "\r\n");   
+            }
+        }
+    });
+
+    LOG_INFO(log, "聊天服务器启动，端口 8080...");
+    server.start();
+    loop.loop();
+}

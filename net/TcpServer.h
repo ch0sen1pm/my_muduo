@@ -27,6 +27,9 @@ public:
     /// @param len  数据长度
     using MessageCallback = std::function<void(TcpConnection* conn, const char* data, size_t len)>;
 
+    using ConnectionCallback = std::function<void(TcpConnection* conn)>;
+    void setConnectionCallback(ConnectionCallback cb);
+
     /**
      * @param loop 主线程 EventLoop
      * @param port 监听端口号
@@ -55,4 +58,5 @@ private:
     MessageCallback messageCallback_;
     uint16_t port_;
     std::unique_ptr<EventLoopThreadPool> threadPool_;
+    ConnectionCallback connectionCallback_;
 };
