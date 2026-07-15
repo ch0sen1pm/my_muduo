@@ -2,12 +2,14 @@
 #include "net/TcpConnection.h"
 #include "core/EventLoop.h"
 #include "logger.h"
+#include "core/crash_handler.h"
 #include <vector>
 #include <iostream>
 
 int main() {
-    auto console = std::make_shared<stdout_sink>();
-    auto file = std::make_shared<file_sink>("chat.log");
+    auto console = std::make_shared<color_stdout_sink>();
+    auto file = std::make_shared<daily_rolling_sink>("chat.log");
+    crash_handler::instance().add(file);
 
     auto log = std::make_shared<logger>("chat", console);
     log->add_sink(file);
@@ -21,13 +23,18 @@ int main() {
 
     server.setConnectionCallback([&](TcpConnection* conn) {
         clients.push_back(conn);
-        LOG_INFO(log, "新客户端链接，在线：" + std::to_string(clients.size()));
+        LOG_ERROR(log, "新客户端链接，在线：" + std::to_string(clients.size()));
         conn->send("欢迎！在线人数：" + std::to_string(clients.size()) + "\r\n");
     });
 
     server.setMessageCallback([&](TcpConnection* conn, const char* data, size_t len) {
         std::string msg(data, len);
         LOG_INFO(log, "收到：" + msg);
+
+        if (msg == "crash") {
+            int* p = nullptr;
+            *p = 42;
+        }
 
         for (auto* c : clients) {
             if (c != conn) {
@@ -37,6 +44,7 @@ int main() {
     });
 
     LOG_INFO(log, "聊天服务器启动，端口 8080...");
+    crash_handler::instance().install();
     server.start();
     loop.loop();
 }
