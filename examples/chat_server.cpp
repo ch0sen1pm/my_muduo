@@ -14,10 +14,15 @@ int main() {
     auto file = std::make_shared<daily_rolling_sink>("chat.log");
     crash_handler::instance().add(file);
 
-    auto log = std::make_shared<logger>("chat", console);
-    log->add_sink(file);
-    log->set_pattern("[%H:%M:%S] %v");
-    log->set_level(level::info);
+    auto app = registry::instance().create("app", file);
+    app->set_level(level::info);
+    auto log = registry::instance().create("app.chat", console);
+
+    LOG_DEBUG(log, "HIERARCHY_TEST: 这条 debug 不应该出现");
+    LOG_INFO (log, "HIERARCHY_TEST: 这条 info 应该出现");
+    LOG_ERROR(log, "HIERARCHY_TEST: 这条 error 应该出现");
+
+
     
     EventLoop loop;
     TcpServer server(&loop, 8080);
