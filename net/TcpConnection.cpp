@@ -36,8 +36,10 @@ void TcpConnection::handleRead() {
         }
     } else if (n == 0) {
         std::cout << "[TcpConnection] 客户端断开" << std::endl;
+        channel_.disableAll();
     } else {
         std::cout << "[TcpConnection] 读错误" << std::endl;
+        channel_.disableAll();
     }
 }
 
