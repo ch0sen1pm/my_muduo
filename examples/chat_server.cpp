@@ -3,10 +3,13 @@
 #include "core/EventLoop.h"
 #include "logger.h"
 #include "core/crash_handler.h"
+#include "core/rate_limiter.h"
 #include <vector>
 #include <iostream>
 
+
 int main() {
+    rate_limiter limiter(5);
     auto console = std::make_shared<color_stdout_sink>();
     auto file = std::make_shared<daily_rolling_sink>("chat.log");
     crash_handler::instance().add(file);
@@ -29,6 +32,13 @@ int main() {
 
     server.setMessageCallback([&](TcpConnection* conn, const char* data, size_t len) {
         std::string msg(data, len);
+
+        for (int i = 0; i < 10; i ++) {
+            if (limiter.should_log("test_repeat")) {
+                LOG_INFO(log, "test_repeat");
+            }
+        }
+
         LOG_INFO(log, "收到：" + msg);
 
         if (msg == "crash") {
