@@ -35,6 +35,14 @@ int main() {
         conn->send("欢迎！在线人数：" + std::to_string(clients.size()) + "\r\n");
     });
 
+    server.setCloseCallback([&](TcpConnection* conn) {
+        auto it = std::find(clients.begin(), clients.end(), conn);
+        if (it != clients.end()) {
+            clients.erase(it);
+            LOG_INFO(log, "客户端断开，在线: " + std::to_string(clients.size()));
+        }
+    });
+
     server.setMessageCallback([&](TcpConnection* conn, const char* data, size_t len) {
         std::string msg(data, len);
 

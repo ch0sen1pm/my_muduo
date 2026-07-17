@@ -17,6 +17,8 @@ public:
     /// @param len  数据长度
     using MessageCallback = std::function<void(const char* data, size_t len)>;
 
+    using CloseCallback = std::function<void(TcpConnection* conn)>;
+
     /**
      * @param loop   所属 EventLoop
      * @param connfd accept 返回的连接 fd
@@ -26,6 +28,8 @@ public:
 
     /** 设置收到数据时的回调 */
     void setMessageCallback(MessageCallback cb);
+
+    void setCloseCallback(CloseCallback cb);
 
     /** 开始工作：将 Channel 注册到 epoll */
     void connectEstablished();
@@ -41,6 +45,7 @@ private:
     Socket socket_;               ///< RAII 持有连接 fd
     Channel channel_;             ///< 盯 fd 的可读事件
     MessageCallback messageCallback_;
+    CloseCallback closeCallback_;
 
     Buffer inputBuffer_;          ///< 输入缓冲区（readv + 按行切消息）
 };

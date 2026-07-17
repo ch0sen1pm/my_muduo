@@ -28,7 +28,10 @@ public:
     using MessageCallback = std::function<void(TcpConnection* conn, const char* data, size_t len)>;
 
     using ConnectionCallback = std::function<void(TcpConnection* conn)>;
+    using CloaseCallback = std::function<void(TcpConnection* conn)>;
     void setConnectionCallback(ConnectionCallback cb);
+    void setCloseCallback(CloaseCallback cb);
+    
 
     /**
      * @param loop 主线程 EventLoop
@@ -59,4 +62,5 @@ private:
     uint16_t port_;
     std::unique_ptr<EventLoopThreadPool> threadPool_;
     ConnectionCallback connectionCallback_;
+    CloaseCallback closeCallback_;
 };

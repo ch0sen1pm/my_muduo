@@ -29,6 +29,10 @@ void TcpServer::setMessageCallback(MessageCallback cb) {
     messageCallback_ = std::move(cb);
 }
 
+void TcpServer::setCloseCallback(CloaseCallback cb) {
+    closeCallback_ = std::move(cb);
+}
+
 void TcpServer::onNewConnection(int connfd, const sockaddr_in& peer) {
     char ip[INET_ADDRSTRLEN];
     inet_ntop(AF_INET, &peer.sin_addr, ip, sizeof(ip));
@@ -40,6 +44,11 @@ void TcpServer::onNewConnection(int connfd, const sockaddr_in& peer) {
     auto* conn = new TcpConnection(ioLoop, connfd);
     conn->setMessageCallback([this, conn](const char* data, size_t len) {
         messageCallback_(conn, data, len);
+    });
+    conn->setCloseCallback([this](TcpConnection* c) {
+        if (closeCallback_) {
+            closeCallback_(c);
+        }
     });
     conn->connectEstablished();
 

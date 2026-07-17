@@ -22,6 +22,10 @@ void TcpConnection::setMessageCallback(MessageCallback cb) {
     messageCallback_ = std::move(cb);
 }
 
+void TcpConnection::setCloseCallback(CloseCallback cb) {
+    closeCallback_ = std::move(cb);
+}
+
 void TcpConnection::handleRead() {
     ssize_t n = inputBuffer_.readFd(channel_.fd());
 
@@ -37,6 +41,9 @@ void TcpConnection::handleRead() {
     } else if (n == 0) {
         std::cout << "[TcpConnection] 客户端断开" << std::endl;
         channel_.disableAll();
+        if (closeCallback_) {
+            closeCallback_(this);
+        }
     } else {
         std::cout << "[TcpConnection] 读错误" << std::endl;
         channel_.disableAll();
