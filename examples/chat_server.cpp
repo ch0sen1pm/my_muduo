@@ -4,19 +4,17 @@
 #include "logger.h"
 #include "core/crash_handler.h"
 #include "core/rate_limiter.h"
+#include "core/json_config.h"
 #include <vector>
 #include <iostream>
 
 
 int main() {
     rate_limiter limiter(5);
-    auto console = std::make_shared<color_stdout_sink>();
-    auto file = std::make_shared<daily_rolling_sink>("chat.log");
-    crash_handler::instance().add(file);
 
-    auto app = registry::instance().create("app", file);
-    app->set_level(level::info);
-    auto log = registry::instance().create("app.chat", console);
+    // 用 JSON 配置文件初始化所有 logger
+    json_config::load("chat_config.json");
+    auto log = registry::instance().get("app.chat");
 
     LOG_DEBUG(log, "HIERARCHY_TEST: 这条 debug 不应该出现");
     LOG_INFO (log, "HIERARCHY_TEST: 这条 info 应该出现");
@@ -67,7 +65,6 @@ int main() {
     });
 
     LOG_INFO(log, "聊天服务器启动，端口 8080...");
-    crash_handler::instance().install();
     server.start();
     loop.loop();
 }

@@ -29,7 +29,7 @@ void TcpServer::setMessageCallback(MessageCallback cb) {
     messageCallback_ = std::move(cb);
 }
 
-void TcpServer::setCloseCallback(CloaseCallback cb) {
+void TcpServer::setCloseCallback(CloseCallback cb) {
     closeCallback_ = std::move(cb);
 }
 
