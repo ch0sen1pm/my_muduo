@@ -27,10 +27,13 @@ public:
     /// @param len  数据长度
     using MessageCallback = std::function<void(TcpConnection* conn, const char* data, size_t len)>;
 
+    /// 新连接到来时的回调（客户端连上时触发）
     using ConnectionCallback = std::function<void(TcpConnection* conn)>;
-    using CloaseCallback = std::function<void(TcpConnection* conn)>;
+    /// 连接断开时的回调（客户端主动断开或异常断连）
+    using CloseCallback = std::function<void(TcpConnection* conn)>;
+
     void setConnectionCallback(ConnectionCallback cb);
-    void setCloseCallback(CloaseCallback cb);
+    void setCloseCallback(CloseCallback cb);
     
 
     /**
@@ -62,5 +65,5 @@ private:
     uint16_t port_;
     std::unique_ptr<EventLoopThreadPool> threadPool_;
     ConnectionCallback connectionCallback_;
-    CloaseCallback closeCallback_;
+    CloseCallback closeCallback_;
 };

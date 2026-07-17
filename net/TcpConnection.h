@@ -29,6 +29,7 @@ public:
     /** 设置收到数据时的回调 */
     void setMessageCallback(MessageCallback cb);
 
+    /** 设置连接断开时的回调（客户端主动断开或异常断连） */
     void setCloseCallback(CloseCallback cb);
 
     /** 开始工作：将 Channel 注册到 epoll */
