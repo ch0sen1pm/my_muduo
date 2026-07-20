@@ -121,6 +121,10 @@ make -j$(nproc)
 - [x] EventLoopThread（一个线程跑一个 EventLoop）
 - [x] EventLoopThreadPool（线程池 + 轮转调度，多线程 Reactor）
 - [x] TimerQueue（timerfd 定时器，epoll 统一管理）
+- [x] Echo server demo（TcpServer + 多线程）
+- [x] 多人聊天室 demo（muduo + my_logger 合体 + JSON config）
+- [ ] 多人对战房间 demo（房间管理 + 积分 + 倒计时）
+- [ ] RPC demo（基于 muduo 的远程过程调用）
 
 ## License
 
