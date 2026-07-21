@@ -123,7 +123,7 @@ make -j$(nproc)
 - [x] TimerQueue（timerfd 定时器，epoll 统一管理）
 - [x] Echo server demo（TcpServer + 多线程）
 - [x] 多人聊天室 demo（muduo + my_logger 合体 + JSON config）
-- [ ] 多人对战房间 demo（房间管理 + 积分 + 倒计时）
+- [x] 多人对战房间 demo（房间管理 + 积分 + 倒计时）（7/21）
 - [ ] RPC demo（基于 muduo 的远程过程调用）
 
 ## License
